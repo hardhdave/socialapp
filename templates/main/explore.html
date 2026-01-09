@@ -1,0 +1,285 @@
+{% extends "base.html" %} {% block title %}Explore - Sapp{% endblock %} {% block
+content %}
+<div class="content-grid">
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <h3>Explore</h3>
+    <ul>
+      <li>
+        <a href="{{ url_for('main.explore') }}" class="active"
+          ><i class="fas fa-fire"></i> Trending</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('main.explore') }}?filter=recent"
+          ><i class="fas fa-clock"></i> Recent</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('main.explore') }}?filter=popular"
+          ><i class="fas fa-star"></i> Popular</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('main.explore') }}?filter=photos"
+          ><i class="fas fa-image"></i> Photos</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('main.explore') }}?filter=videos"
+          ><i class="fas fa-video"></i> Videos</a
+        >
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="feed">
+    <div
+      class="explore-header"
+      style="padding: 2rem; border-bottom: 1px solid #eee"
+    >
+      <h2><i class="fas fa-compass"></i> Explore</h2>
+      <p class="text-muted">
+        Discover trending posts and new content from the community
+      </p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div
+      class="filter-tabs"
+      style="
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #eee;
+        background: #f8f9fa;
+      "
+    >
+      <a
+        href="{{ url_for('main.explore') }}"
+        class="filter-tab {{ 'active' if not request.args.get('filter') }}"
+      >
+        <i class="fas fa-fire"></i> Trending
+      </a>
+      <a
+        href="{{ url_for('main.explore') }}?filter=recent"
+        class="filter-tab {{ 'active' if request.args.get('filter') == 'recent' }}"
+      >
+        <i class="fas fa-clock"></i> Recent
+      </a>
+      <a
+        href="{{ url_for('main.explore') }}?filter=popular"
+        class="filter-tab {{ 'active' if request.args.get('filter') == 'popular' }}"
+      >
+        <i class="fas fa-star"></i> Popular
+      </a>
+      <a
+        href="{{ url_for('main.explore') }}?filter=photos"
+        class="filter-tab {{ 'active' if request.args.get('filter') == 'photos' }}"
+      >
+        <i class="fas fa-image"></i> Photos
+      </a>
+      <a
+        href="{{ url_for('main.explore') }}?filter=videos"
+        class="filter-tab {{ 'active' if request.args.get('filter') == 'videos' }}"
+      >
+        <i class="fas fa-video"></i> Videos
+      </a>
+    </div>
+
+    <!-- Posts -->
+    {% if posts.items %} {% for post in posts.items %} {% include
+    'post/components/post_card.html' %} {% endfor %}
+
+    <!-- Pagination -->
+    {% if posts.pages > 1 %}
+    <div class="pagination">
+      {% if posts.has_prev %}
+      <a
+        href="{{ url_for('main.explore', page=posts.prev_num, **request.args) }}"
+        class="page-link"
+        >Previous</a
+      >
+      {% endif %} {% for page_num in posts.iter_pages() %} {% if page_num %} {%
+      if page_num != posts.page %}
+      <a
+        href="{{ url_for('main.explore', page=page_num, **request.args) }}"
+        class="page-link"
+        >{{ page_num }}</a
+      >
+      {% else %}
+      <span class="page-link active">{{ page_num }}</span>
+      {% endif %} {% endif %} {% endfor %} {% if posts.has_next %}
+      <a
+        href="{{ url_for('main.explore', page=posts.next_num, **request.args) }}"
+        class="page-link"
+        >Next</a
+      >
+      {% endif %}
+    </div>
+    {% endif %} {% else %}
+    <div class="text-center" style="padding: 3rem">
+      <i
+        class="fas fa-search"
+        style="font-size: 3rem; color: #ccc; margin-bottom: 1rem"
+      ></i>
+      <h3>No posts found</h3>
+      <p class="text-muted">
+        Try exploring different categories or check back later for new content.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Sidebar -->
+  <aside class="right-sidebar">
+    <!-- Trending Tags -->
+    {% if trending_tags %}
+    <div class="widget">
+      <h3><i class="fas fa-hashtag"></i> Trending Tags</h3>
+      {% for tag, count in trending_tags %}
+      <div class="trending-item">
+        <a
+          href="{{ url_for('post.posts_by_tag', tag_name=tag) }}"
+          class="trending-tag"
+          >#{{ tag }}</a
+        >
+        <span class="trending-count">{{ count }} posts</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Suggested Users -->
+    {% if suggested_users %}
+    <div class="widget">
+      <h3><i class="fas fa-user-plus"></i> Suggested for You</h3>
+      {% for user in suggested_users %}
+      <div class="user-suggestion">
+        <img
+          src="{{ user.get_profile_picture_url() }}"
+          alt="{{ user.username }}"
+          class="suggestion-avatar"
+        />
+        <div class="suggestion-info">
+          <a
+            href="{{ url_for('user.profile', username=user.username) }}"
+            class="suggestion-name"
+          >
+            {{ user.full_name or user.username }} {% if user.is_verified %}
+            <i
+              class="fas fa-check-circle"
+              style="color: #007bff; font-size: 0.8rem"
+            ></i>
+            {% endif %}
+          </a>
+          <div class="suggestion-username">@{{ user.username }}</div>
+          {% if user.bio %}
+          <div
+            class="text-muted"
+            style="font-size: 0.75rem; margin-top: 0.2rem"
+          >
+            {{ user.bio[:50] }}{% if user.bio|length > 50 %}...{% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+        <button
+          class="btn btn-outline"
+          style="font-size: 0.8rem; padding: 0.3rem 0.8rem"
+          onclick="followUser('{{ user.username }}')"
+        >
+          Follow
+        </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Popular Categories -->
+    <div class="widget">
+      <h3><i class="fas fa-chart-line"></i> Popular Categories</h3>
+      <div class="category-list">
+        <a
+          href="{{ url_for('main.explore') }}?category=technology"
+          class="category-item"
+        >
+          <i class="fas fa-laptop-code"></i> Technology
+        </a>
+        <a
+          href="{{ url_for('main.explore') }}?category=travel"
+          class="category-item"
+        >
+          <i class="fas fa-plane"></i> Travel
+        </a>
+        <a
+          href="{{ url_for('main.explore') }}?category=food"
+          class="category-item"
+        >
+          <i class="fas fa-utensils"></i> Food
+        </a>
+        <a
+          href="{{ url_for('main.explore') }}?category=photography"
+          class="category-item"
+        >
+          <i class="fas fa-camera"></i> Photography
+        </a>
+        <a
+          href="{{ url_for('main.explore') }}?category=fitness"
+          class="category-item"
+        >
+          <i class="fas fa-dumbbell"></i> Fitness
+        </a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<style>
+  .filter-tab {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #666;
+    background: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .filter-tab:hover {
+    background: #f0f0f0;
+    color: #007bff;
+  }
+
+  .filter-tab.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 0;
+    color: #666;
+    text-decoration: none;
+    border-bottom: 1px solid #f0f0f0;
+    transition: color 0.3s;
+  }
+
+  .category-item:hover {
+    color: #007bff;
+  }
+
+  .category-item:last-child {
+    border-bottom: none;
+  }
+</style>
+{% endblock %}

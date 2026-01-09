@@ -1,0 +1,182 @@
+{% extends "base.html" %} {% block title %}Notifications - Sapp{% endblock %} {%
+block content %}
+<div class="container">
+  <div class="feed" style="max-width: 700px; margin: 0 auto">
+    <div
+      class="notifications-header"
+      style="padding: 2rem; border-bottom: 1px solid #eee; background: #fff"
+    >
+      <h2><i class="fas fa-bell"></i> Notifications</h2>
+      <p class="text-muted">Stay updated with your latest interactions</p>
+    </div>
+
+    <div class="notifications-list">
+      {% if notifications.items %} {% for notification in notifications.items %}
+      <div
+        class="notification-item {{ 'unread' if not notification.is_read }}"
+        style="padding: 1.5rem; border-bottom: 1px solid #eee; background: {{ '#f8f9ff' if not notification.is_read else '#fff' }};"
+      >
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <img
+            src="{{ notification.sender.get_profile_picture_url() }}"
+            alt="{{ notification.sender.username }}"
+            style="
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              object-fit: cover;
+            "
+          />
+
+          <div style="flex: 1">
+            <div style="margin-bottom: 0.5rem">
+              <a
+                href="{{ url_for('user.profile', username=notification.sender.username) }}"
+                style="font-weight: 600; color: #333; text-decoration: none"
+              >
+                {{ notification.sender.username }}
+              </a>
+              {% if notification.sender.username in notification.message %}
+              <span style="color: #666"
+                >{{ notification.message.split(notification.sender.username)[1]
+                }}</span
+              >
+              {% else %}
+              <span style="color: #666">{{ notification.message }}</span>
+              {% endif %}
+            </div>
+
+            {% if notification.post %}
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 0.8rem;
+                border-radius: 5px;
+                margin: 0.5rem 0;
+                border-left: 3px solid #007bff;
+              "
+            >
+              <a
+                href="{{ url_for('post.detail', post_id=notification.post.id) }}"
+                style="color: #666; text-decoration: none; font-size: 0.9rem"
+              >
+                {% if notification.post.content|length > 100 %} {{
+                notification.post.content[:100] }}... {% else %} {{
+                notification.post.content }} {% endif %}
+              </a>
+            </div>
+            {% endif %}
+
+            <div
+              style="
+                color: #999;
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+              "
+            >
+              <span>{{ notification.time_ago() }}</span>
+              {% if not notification.is_read %}
+              <span
+                style="
+                  background: #007bff;
+                  color: white;
+                  padding: 0.2rem 0.5rem;
+                  border-radius: 10px;
+                  font-size: 0.7rem;
+                "
+              >
+                New
+              </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem">
+            {% if notification.type == 'like' %}
+            <i
+              class="fas fa-heart"
+              style="color: #ff4757; font-size: 1.2rem"
+            ></i>
+            {% elif notification.type == 'comment' %}
+            <i
+              class="fas fa-comment"
+              style="color: #007bff; font-size: 1.2rem"
+            ></i>
+            {% elif notification.type == 'follow' %}
+            <i
+              class="fas fa-user-plus"
+              style="color: #28a745; font-size: 1.2rem"
+            ></i>
+            {% elif notification.type == 'mention' %}
+            <i class="fas fa-at" style="color: #6f42c1; font-size: 1.2rem"></i>
+            {% endif %} {% if notification.get_url() != '/' %}
+            <a
+              href="{{ notification.get_url() }}"
+              style="
+                color: #007bff;
+                text-decoration: none;
+                padding: 0.3rem 0.8rem;
+                border: 1px solid #007bff;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                transition: all 0.3s;
+              "
+            >
+              View
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Pagination -->
+      {% if notifications.pages > 1 %}
+      <div class="pagination">
+        {% if notifications.has_prev %}
+        <a
+          href="{{ url_for('main.notifications', page=notifications.prev_num) }}"
+          class="page-link"
+          >Previous</a
+        >
+        {% endif %} {% for page_num in notifications.iter_pages() %} {% if
+        page_num %} {% if page_num != notifications.page %}
+        <a
+          href="{{ url_for('main.notifications', page=page_num) }}"
+          class="page-link"
+          >{{ page_num }}</a
+        >
+        {% else %}
+        <span class="page-link active">{{ page_num }}</span>
+        {% endif %} {% endif %} {% endfor %} {% if notifications.has_next %}
+        <a
+          href="{{ url_for('main.notifications', page=notifications.next_num) }}"
+          class="page-link"
+          >Next</a
+        >
+        {% endif %}
+      </div>
+      {% endif %} {% else %}
+      <div
+        class="no-notifications"
+        style="text-align: center; padding: 4rem 2rem"
+      >
+        <i
+          class="fas fa-bell-slash"
+          style="font-size: 4rem; color: #ccc; margin-bottom: 1.5rem"
+        ></i>
+        <h3 style="color: #666; margin-bottom: 1rem">No notifications yet</h3>
+        <p class="text-muted" style="margin-bottom: 2rem">
+          When people interact with your posts, you'll see notifications here.
+        </p>
+        <a href="{{ url_for('main.explore') }}" class="btn btn-primary">
+          <i class="fas fa-compass"></i> Explore Content
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

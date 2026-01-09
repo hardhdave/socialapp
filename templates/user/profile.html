@@ -1,0 +1,22 @@
+{% if current_user.is_authenticated and current_user != user %}
+<div class="mt-2">
+  {% if current_user.is_following(user) %}
+  <button
+    class="btn btn-secondary"
+    onclick="unfollowUser('{{ user.username }}')"
+  >
+    <i class="fas fa-user-minus"></i> Unfollow
+  </button>
+  {% else %}
+  <button class="btn btn-primary" onclick="followUser('{{ user.username }}')">
+    <i class="fas fa-user-plus"></i> Follow
+  </button>
+  {% endif %}
+</div>
+{% elif current_user == user %}
+<div class="mt-2">
+  <a href="{{ url_for('user.edit_profile') }}" class="btn btn-outline">
+    <i class="fas fa-edit"></i> Edit Profile
+  </a>
+</div>
+{% endif %}

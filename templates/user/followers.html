@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block title %}{{ title }} - {{ user.username }} -
+Sapp{% endblock %} {% block content %}
+<div class="container">
+  <div class="feed" style="max-width: 600px; margin: 0 auto">
+    <div class="widget">
+      <h2 class="mb-3">{{ user.username }}'s {{ title }}</h2>
+
+      {% if users.items %} {% for user_item in users.items %}
+      <div class="user-suggestion">
+        <img
+          src="{{ user_item.get_profile_picture_url() }}"
+          alt="{{ user_item.username }}"
+          class="suggestion-avatar"
+        />
+        <div class="suggestion-info">
+          <a
+            href="{{ url_for('user.profile', username=user_item.username) }}"
+            class="suggestion-name"
+          >
+            {{ user_item.full_name or user_item.username }}
+          </a>
+          <div class="suggestion-username">@{{ user_item.username }}</div>
+          {% if user_item.bio %}
+          <div class="text-muted" style="font-size: 0.8rem; margin-top: 0.2rem">
+            {{ user_item.bio[:100] }}...
+          </div>
+          {% endif %}
+        </div>
+        {% if current_user.is_authenticated and current_user != user_item %} {%
+        if current_user.is_following(user_item) %}
+        <button
+          class="btn btn-secondary"
+          onclick="unfollowUser('{{ user_item.username }}')"
+        >
+          Unfollow
+        </button>
+        {% else %}
+        <button
+          class="btn btn-outline"
+          onclick="followUser('{{ user_item.username }}')"
+        >
+          Follow
+        </button>
+        {% endif %} {% endif %}
+      </div>
+      {% endfor %}
+
+      <!-- Pagination -->
+      {% if users.pages > 1 %}
+      <div class="pagination">
+        {% if users.has_prev %}
+        <a
+          href="{{ url_for(request.endpoint, username=user.username, page=users.prev_num) }}"
+          class="page-link"
+          >Previous</a
+        >
+        {% endif %} {% for page_num in users.iter_pages() %} {% if page_num %}
+        {% if page_num != users.page %}
+        <a
+          href="{{ url_for(request.endpoint, username=user.username, page=page_num) }}"
+          class="page-link"
+          >{{ page_num }}</a
+        >
+        {% else %}
+        <span class="page-link active">{{ page_num }}</span>
+        {% endif %} {% endif %} {% endfor %} {% if users.has_next %}
+        <a
+          href="{{ url_for(request.endpoint, username=user.username, page=users.next_num) }}"
+          class="page-link"
+          >Next</a
+        >
+        {% endif %}
+      </div>
+      {% endif %} {% else %}
+      <div class="text-center" style="padding: 3rem">
+        <i
+          class="fas fa-users"
+          style="font-size: 3rem; color: #ccc; margin-bottom: 1rem"
+        ></i>
+        <h3>No {{ title.lower() }} yet</h3>
+        <p class="text-muted">
+          {{ user.username }} doesn't have any {{ title.lower() }} yet.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

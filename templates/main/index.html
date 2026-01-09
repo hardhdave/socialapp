@@ -1,0 +1,172 @@
+{% extends "base.html" %} {% block title %}Home - Sapp{% endblock %} {% block
+content %}
+<div class="content-grid">
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+        <a href="{{ url_for('main.index') }}" class="active"
+          ><i class="fas fa-home"></i> Home</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('main.explore') }}"
+          ><i class="fas fa-compass"></i> Explore</a
+        >
+      </li>
+      {% if current_user.is_authenticated %}
+      <li>
+        <a href="{{ url_for('user.profile', username=current_user.username) }}"
+          ><i class="fas fa-user"></i> Profile</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('user.edit_profile') }}"
+          ><i class="fas fa-cog"></i> Settings</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </aside>
+
+  <!-- Main Feed -->
+  <div class="feed">
+    {% if current_user.is_authenticated %}
+    <!-- Post Creation -->
+    <div class="post-create">
+      <form
+        action="{{ url_for('post.create') }}"
+        method="POST"
+        enctype="multipart/form-data"
+        class="post-create-form"
+      >
+        <textarea
+          name="content"
+          placeholder="What's on your mind?"
+          class="post-textarea"
+          required
+        ></textarea>
+
+        <input
+          type="text"
+          name="tags"
+          placeholder="Tags (comma separated)"
+          class="form-input"
+        />
+        <input
+          type="text"
+          name="location"
+          placeholder="Location"
+          class="form-input"
+        />
+
+        <div class="post-options">
+          <div class="media-buttons">
+            <label class="media-btn">
+              <i class="fas fa-image"></i> Photo
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                class="file-input"
+              />
+            </label>
+            <label class="media-btn">
+              <i class="fas fa-video"></i> Video
+              <input
+                type="file"
+                name="video"
+                accept="video/*"
+                class="file-input"
+              />
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary">Post</button>
+        </div>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Posts Feed -->
+    {% for post in posts.items %} {% include 'post/components/post_card.html' %}
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if posts.pages > 1 %}
+    <div class="pagination">
+      {% if posts.has_prev %}
+      <a
+        href="{{ url_for('main.index', page=posts.prev_num) }}"
+        class="page-link"
+        >Previous</a
+      >
+      {% endif %} {% for page_num in posts.iter_pages() %} {% if page_num %} {%
+      if page_num != posts.page %}
+      <a href="{{ url_for('main.index', page=page_num) }}" class="page-link"
+        >{{ page_num }}</a
+      >
+      {% else %}
+      <span class="page-link active">{{ page_num }}</span>
+      {% endif %} {% endif %} {% endfor %} {% if posts.has_next %}
+      <a
+        href="{{ url_for('main.index', page=posts.next_num) }}"
+        class="page-link"
+        >Next</a
+      >
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Sidebar -->
+  <aside class="right-sidebar">
+    <!-- Trending Tags -->
+    {% if trending_tags %}
+    <div class="widget">
+      <h3>Trending Tags</h3>
+      {% for tag, count in trending_tags %}
+      <div class="trending-item">
+        <a
+          href="{{ url_for('post.posts_by_tag', tag_name=tag) }}"
+          class="trending-tag"
+          >#{{ tag }}</a
+        >
+        <span class="trending-count">{{ count }} posts</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Suggested Users -->
+    {% if current_user.is_authenticated and suggested_users %}
+    <div class="widget">
+      <h3>Suggested for You</h3>
+      {% for user in suggested_users %}
+      <div class="user-suggestion">
+        <img
+          src="{{ user.get_profile_picture_url() }}"
+          alt="{{ user.username }}"
+          class="suggestion-avatar"
+        />
+        <div class="suggestion-info">
+          <a
+            href="{{ url_for('user.profile', username=user.username) }}"
+            class="suggestion-name"
+            >{{ user.full_name or user.username }}</a
+          >
+          <div class="suggestion-username">@{{ user.username }}</div>
+        </div>
+        <button
+          class="btn btn-outline"
+          onclick="followUser('{{ user.username }}')"
+        >
+          Follow
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

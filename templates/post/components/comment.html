@@ -1,0 +1,46 @@
+<div class="comment" data-comment-id="{{ comment.id }}">
+  <img
+    src="{{ comment.author.get_profile_picture_url() }}"
+    alt="{{ comment.author.username }}"
+    class="comment-avatar"
+  />
+  <div class="comment-content">
+    <div class="comment-author">
+      {{ comment.author.full_name or comment.author.username }}
+    </div>
+    <div class="comment-text">{{ comment.content }}</div>
+    <div class="comment-time">
+      {{ comment.time_ago() }} {% if current_user.is_authenticated %}
+      <button
+        class="btn"
+        style="font-size: 0.8rem; padding: 0.2rem 0.5rem; margin-left: 1rem"
+        onclick="replyToComment({{ comment.id }})"
+      >
+        Reply
+      </button>
+      {% endif %}
+    </div>
+
+    <!-- Replies -->
+    {% if comment.replies and comment.replies.count() > 0 %}
+    <div class="comment-replies" style="margin-left: 2rem; margin-top: 1rem">
+      {% for reply in comment.replies %}
+      <div class="comment">
+        <img
+          src="{{ reply.author.get_profile_picture_url() }}"
+          alt="{{ reply.author.username }}"
+          class="comment-avatar"
+        />
+        <div class="comment-content">
+          <div class="comment-author">
+            {{ reply.author.full_name or reply.author.username }}
+          </div>
+          <div class="comment-text">{{ reply.content }}</div>
+          <div class="comment-time">{{ reply.time_ago() }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>

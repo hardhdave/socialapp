@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block title %}Send Test Email - Sapp{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2 class="text-center mb-3">Send a test email</h2>
+  <p class="text-muted mb-2">
+    Enter an email to verify your SMTP settings. Defaults to your own email.
+  </p>
+  <form method="POST">
+    <div class="form-group">
+      <label for="to" class="form-label">Recipient</label>
+      <input type="email" id="to" name="to" class="form-input" placeholder="you@example.com" />
+    </div>
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      Send Test Email
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %}Verify Login - Sapp{% endblock %} {%
+block content %}
+<div class="form-container">
+  <h2 class="text-center mb-3">Enter Login Code</h2>
+  <p class="text-muted mb-2">
+    We sent a 6-digit code to your email. Enter it below to continue.
+  </p>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="code" class="form-label">Login Code</label>
+      <input
+        type="text"
+        id="code"
+        name="code"
+        class="form-input"
+        placeholder="123456"
+        pattern="[0-9]{6}"
+        title="Please enter the 6-digit code sent to your email"
+        maxlength="6"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      Verify
+    </button>
+  </form>
+
+  <div class="text-center mt-3">
+    <form method="POST" action="{{ url_for('auth.resend_code') }}">
+      <button type="submit" class="btn btn-secondary">Resend Code</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

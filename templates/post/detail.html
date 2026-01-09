@@ -1,0 +1,68 @@
+{% extends "base.html" %} {% block title %}Post by {{ post.author.username }} -
+Sapp{% endblock %} {% block content %}
+<div class="container">
+  <div class="feed" style="max-width: 800px; margin: 0 auto">
+    <!-- Single Post -->
+    {% include 'post/components/post_card.html' %}
+
+    <!-- Comments Section -->
+    <div class="comments-section" style="display: block; padding: 2rem">
+      <h3 class="mb-3">Comments ({{ post.comments_count }})</h3>
+
+      {% if current_user.is_authenticated %}
+      <form
+        class="comment-form mb-3"
+        onsubmit="addComment(event, {{ post.id }})"
+      >
+        <img
+          src="{{ current_user.get_profile_picture_url() }}"
+          alt="Your avatar"
+          class="comment-avatar"
+        />
+        <input
+          type="text"
+          name="content"
+          placeholder="Write a comment..."
+          class="comment-input"
+          required
+        />
+        <button type="submit" class="btn btn-primary">Post</button>
+      </form>
+      {% endif %}
+
+      <div class="comments-list">
+        {% for comment in comments.items %} {% include
+        'post/components/comment.html' %} {% endfor %}
+      </div>
+
+      <!-- Pagination for comments -->
+      {% if comments.pages > 1 %}
+      <div class="pagination">
+        {% if comments.has_prev %}
+        <a
+          href="{{ url_for('post.detail', post_id=post.id, page=comments.prev_num) }}"
+          class="page-link"
+          >Previous</a
+        >
+        {% endif %} {% for page_num in comments.iter_pages() %} {% if page_num
+        %} {% if page_num != comments.page %}
+        <a
+          href="{{ url_for('post.detail', post_id=post.id, page=page_num) }}"
+          class="page-link"
+          >{{ page_num }}</a
+        >
+        {% else %}
+        <span class="page-link active">{{ page_num }}</span>
+        {% endif %} {% endif %} {% endfor %} {% if comments.has_next %}
+        <a
+          href="{{ url_for('post.detail', post_id=post.id, page=comments.next_num) }}"
+          class="page-link"
+          >Next</a
+        >
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

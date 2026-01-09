@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Sapp{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="{{ url_for('main.index') }}" class="logo">
+          <i class="fas fa-bolt"></i> Sapp
+        </a>
+
+        <div class="search-container">
+          <form action="{{ url_for('main.search') }}" method="GET">
+            <input
+              type="text"
+              name="q"
+              class="search-input"
+              placeholder="Search..."
+              value="{{ request.args.get('q', '') }}"
+            />
+          </form>
+        </div>
+
+        <ul class="nav-links">
+          <li>
+            <a href="{{ url_for('main.index') }}" title="Home">
+              <i class="fas fa-home"></i> <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('main.explore') }}" title="Explore">
+              <i class="fas fa-compass"></i> <span>Explore</span>
+            </a>
+          </li>
+
+          {% if current_user.is_authenticated %}
+          <li>
+            <a href="{{ url_for('post.create') }}" title="Create Post">
+              <i class="fas fa-plus-circle"></i> <span>Create</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('main.notifications') }}"
+              style="position: relative"
+              title="Notifications"
+            >
+              <i class="fas fa-bell"></i>
+              <span
+                class="notification-badge"
+                id="notification-count"
+                style="display: none"
+              ></span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('user.profile', username=current_user.username) }}"
+              title="Profile"
+            >
+              <img
+                src="{{ current_user.get_profile_picture_url() }}"
+                alt="Profile"
+                class="avatar"
+                style="width: 30px; height: 30px; border-width: 2px;"
+              />
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('auth.logout') }}" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+            </a>
+          </li>
+          {% else %}
+          <li>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="border-radius: 20px; padding: 5px 15px;">
+              Login
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="padding: 5px 15px;">
+              Sign Up
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div class="container" style="margin-top: 100px">
+      {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'error' if category == 'error' else category }}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

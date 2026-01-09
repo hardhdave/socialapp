@@ -1,0 +1,115 @@
+<div class="post-card" data-post-id="{{ post.id }}">
+  <div class="post-header">
+    <img
+      src="{{ post.author.get_profile_picture_url() }}"
+      alt="{{ post.author.username }}"
+      class="avatar"
+    />
+    <div class="post-author">
+      <a
+        href="{{ url_for('user.profile', username=post.author.username) }}"
+        class="author-name"
+      >
+        {{ post.author.full_name or post.author.username }} {% if
+        post.author.is_verified %}
+        <i class="fas fa-check-circle" style="color: #007bff"></i>
+        {% endif %}
+      </a>
+      <div class="post-time">
+        {{ post.time_ago() }} {% if post.location %}
+        <i class="fas fa-map-marker-alt"></i> {{ post.location }} {% endif %}
+      </div>
+    </div>
+    {% if current_user.is_authenticated and current_user == post.author %}
+    <div class="post-options">
+      <button class="action-btn" onclick="deletePost({{ post.id }})">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="post-content">{{ post.content|safe }}</div>
+
+  {% if post.get_tags_list() %}
+  <div class="post-tags">
+    {% for tag in post.get_tags_list() %}
+    <a href="{{ url_for('post.posts_by_tag', tag_name=tag) }}" class="tag"
+      >#{{ tag }}</a
+    >
+    {% endfor %}
+  </div>
+  {% endif %} {% if post.get_image_url() or post.get_video_url() %}
+  <div class="post-media">
+    {% if post.get_image_url() %}
+    <img src="{{ post.get_image_url() }}" alt="Post image" class="post-image" />
+    {% endif %} {% if post.get_video_url() %}
+    <video controls class="post-video">
+      <source src="{{ post.get_video_url() }}" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="post-actions">
+    <div class="action-buttons">
+      {% if current_user.is_authenticated %}
+      <button
+        class="action-btn like-btn {{ 'liked' if post.is_liked_by(current_user) }}"
+        onclick="toggleLike({{ post.id }})"
+      >
+        <i class="fas fa-heart"></i>
+        <span class="like-count">{{ post.likes_count }}</span>
+      </button>
+      {% else %}
+      <button class="action-btn like-btn" disabled>
+        <i class="fas fa-heart"></i>
+        <span class="like-count">{{ post.likes_count }}</span>
+      </button>
+      {% endif %}
+
+      <button class="action-btn" onclick="showComments({{ post.id }})">
+        <i class="fas fa-comment"></i>
+        <span>{{ post.comments_count }}</span>
+      </button>
+
+      <button class="action-btn" onclick="sharePost({{ post.id }})">
+        <i class="fas fa-share"></i>
+      </button>
+    </div>
+
+    <div class="post-stats">
+      <span>{{ post.views_count }} views</span>
+    </div>
+  </div>
+
+  <!-- Comments Section (hidden by default) -->
+  <div
+    class="comments-section"
+    id="comments-{{ post.id }}"
+    style="display: none"
+  >
+    {% if current_user.is_authenticated %}
+    <form class="comment-form" onsubmit="addComment(event, {{ post.id }})">
+      <img
+        src="{{ current_user.get_profile_picture_url() }}"
+        alt="Your avatar"
+        class="comment-avatar"
+      />
+      <input
+        type="text"
+        name="content"
+        placeholder="Write a comment..."
+        class="comment-input"
+        required
+      />
+      <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+    {% endif %}
+
+    <div class="comments-list" id="comments-list-{{ post.id }}">
+      <!-- Comments will be loaded here via AJAX -->
+    </div>
+  </div>
+</div>

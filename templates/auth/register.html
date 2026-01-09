@@ -1,0 +1,94 @@
+{% extends "base.html" %} {% block title %}Register - Sapp{% endblock %} {%
+block content %}
+<div class="form-container">
+  <h2 class="text-center mb-3">Create Your Account</h2>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="username" class="form-label">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        class="form-input"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" name="email" class="form-input" required />
+    </div>
+
+    <div class="form-group">
+      <label for="full_name" class="form-label">Full Name</label>
+      <input type="text" id="full_name" name="full_name" class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label for="password" class="form-label">Password</label>
+      <div class="d-flex align-center" style="gap: 0.5rem">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          required
+          style="flex: 1"
+        />
+        <button type="button" class="btn btn-secondary" id="toggle-password">
+          Show
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirm_password" class="form-label">Confirm Password</label>
+      <div class="d-flex align-center" style="gap: 0.5rem">
+        <input
+          type="password"
+          id="confirm_password"
+          name="confirm_password"
+          class="form-input"
+          required
+          style="flex: 1"
+        />
+        <button type="button" class="btn btn-secondary" id="toggle-confirm">
+          Show
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      Register
+    </button>
+  </form>
+
+  <div class="text-center mt-3">
+    <p>
+      Already have an account?
+      <a href="{{ url_for('auth.login') }}">Login here</a>
+    </p>
+  </div>
+
+  {# OTP moved to dedicated page /auth/verify #}
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  (function () {
+    function toggleButton(btnId, inputId) {
+      const btn = document.getElementById(btnId);
+      const input = document.getElementById(inputId);
+      if (btn && input) {
+        btn.addEventListener("click", function () {
+          const isPassword = input.type === "password";
+          input.type = isPassword ? "text" : "password";
+          btn.textContent = isPassword ? "Hide" : "Show";
+        });
+      }
+    }
+    toggleButton("toggle-password", "password");
+    toggleButton("toggle-confirm", "confirm_password");
+  })();
+</script>
+{% endblock %}

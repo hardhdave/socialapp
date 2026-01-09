@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block title %}Login - Sapp{% endblock %} {% block
+content %}
+<div class="form-container">
+  <h2 class="text-center mb-3">Login to Your Account</h2>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="username_or_email" class="form-label"
+        >Username or Email</label
+      >
+      <input
+        type="text"
+        id="username_or_email"
+        name="username_or_email"
+        class="form-input"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="password" class="form-label">Password</label>
+      <div class="d-flex align-center" style="gap: 0.5rem">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          required
+          style="flex: 1"
+        />
+        <button type="button" class="btn btn-secondary" id="toggle-password">
+          Show
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="d-flex align-center gap-1">
+        <input type="checkbox" name="remember_me" />
+        Remember me
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      Login
+    </button>
+  </form>
+
+  <div class="text-center mt-3">
+    <p>
+      Don't have an account?
+      <a href="{{ url_for('auth.register') }}">Register here</a>
+    </p>
+    <p class="mt-1">
+      <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+    </p>
+  </div>
+
+  {# OTP moved to dedicated page /auth/verify #}
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  (function () {
+    const toggle = document.getElementById("toggle-password");
+    const input = document.getElementById("password");
+    if (toggle && input) {
+      toggle.addEventListener("click", function () {
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        toggle.textContent = isPassword ? "Hide" : "Show";
+      });
+    }
+  })();
+</script>
+{% endblock %}
